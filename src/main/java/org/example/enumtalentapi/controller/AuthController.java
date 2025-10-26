@@ -80,4 +80,39 @@ public class AuthController {
                     .body(new ApiResponse("error", "Unexpected error: " + e.getMessage()));
         }
     }
+    @PostMapping("/logout")
+    public ResponseEntity<ApiResponse> logout(
+            @RequestParam String userId,
+            @RequestHeader(value = "Authorization", required = false) String authHeader) {
+        try {
+            log.info("Logout requested for user: {}", userId);
+
+            String message = authService.logout(userId);
+            return ResponseEntity.ok(new ApiResponse("success", message));
+        } catch (CustomException e) {
+            log.error("Custom exception during logout: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse("error", e.getMessage()));
+        } catch (Exception e) {
+            log.error("Unexpected error during logout: ", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse("error", "Unexpected error: " + e.getMessage()));
+        }
+    }
+
+    @PostMapping("/logout-token")
+    public ResponseEntity<ApiResponse> logoutWithToken(
+            @RequestHeader("Authorization") String authHeader) {
+        try {
+            String token = authHeader.replace("Bearer ", "");
+            String message = authService.logoutWithToken(token);
+            return ResponseEntity.ok(new ApiResponse("success", message));
+        } catch (CustomException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                    .body(new ApiResponse("error", "Unexpected error: " + e.getMessage()));
+        }
+    }
 }

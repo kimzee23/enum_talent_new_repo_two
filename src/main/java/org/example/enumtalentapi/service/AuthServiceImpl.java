@@ -37,11 +37,11 @@ public class AuthServiceImpl implements AuthService {
             }
         }
 
-
         User newUser = new User();
         newUser.setEmail(request.getEmail());
         newUser.setPassword(encoder.encode(request.getPassword()));
         newUser.setVerified(false);
+        newUser.setCreatedAt(LocalDateTime.now());
         userRepo.save(newUser);
 
         VerificationToken token = createVerificationToken(newUser);
@@ -68,6 +68,9 @@ public class AuthServiceImpl implements AuthService {
         boolean matches = encoder.matches(request.getPassword(), user.getPassword());
         if (!matches)
             throw new CustomException("INVALID_CREDENTIALS");
+        user.setLastLogin(LocalDateTime.now());
+        userRepo.save(user);
+
         return "LOGIN_SUCCESS " +  "userId=" + user.getId();
     }
 
@@ -91,5 +94,23 @@ public class AuthServiceImpl implements AuthService {
         userRepo.save(user);
 
         return "EMAIL_VERIFIED";
+    }
+
+    @Override
+    public String logout(String userId) {
+        User user = userRepo.findById(userId)
+                .orElseThrow(() -> new CustomException("USER_NOT_FOUND"));
+
+        user.setLastLogout(LocalDateTime.now());
+        userRepo.save(user);
+        System.out.println("User " + user.getEmail() + " logged out successfully");
+
+        return "LOGOUT_SUCCESSFUL";
+    }
+
+    @Override
+    public String logoutWithToken(String token) {
+        System.out.println("Token-based logout requested");
+        return "LOGOUT_SUCCESSFUL";
     }
 }

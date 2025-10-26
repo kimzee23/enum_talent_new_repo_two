@@ -9,4 +9,6 @@ public interface AuthService {
     String signup(SignupRequest request);
     String login(LoginRequest request);
     String verifyEmail(String tokenStr);
+    String logout(String userId);
+    String logoutWithToken(String token);
 }

@@ -20,5 +20,7 @@ public class User {
     private String password;
     private boolean verified;
     private String token;
+    private LocalDateTime lastLogout;
+    private LocalDateTime lastLogin;
     private LocalDateTime createdAt = LocalDateTime.now();
 }
